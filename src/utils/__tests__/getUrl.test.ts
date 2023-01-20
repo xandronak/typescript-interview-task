@@ -1,5 +1,5 @@
+import {API} from '../../constants/api';
 import getUrl from '../getUrl';
-import { API } from '../../constants';
 
 process.env.API_URL = 'http://localhost:9003';
 
@@ -24,7 +24,15 @@ describe('should convert api url and params to URI', () => {
         id: 1234
       },
     ],
+    [
+      'http://localhost:9003/api/login?id=1234&username=vardenis',
+      API.Login,
+      {
+        id: 1234,
+        username: 'vardenis'
+      },
+    ],
   ])('should return %s', (expectedResult, api, params) => {
     expect(getUrl(api, params)).toBe(expectedResult);
   });
-})
+});

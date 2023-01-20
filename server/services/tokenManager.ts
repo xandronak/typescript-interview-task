@@ -1,26 +1,46 @@
 import faker from 'faker';
 
-interface IToken {
-    token: string,
-    userId: string,
+interface TokenData {
+  token: string,
+  userId: string,
+  expireAt: string,
 }
 
-let tokens: Array<IToken> = [];
+class TokenManager {
+  // 15 minutes token validity
+  private TOKEN_VALIDITY = 1000 * 60 * 15;
 
-export const addToken = (token: string, userId: string) => {
-    tokens.push({ token, userId });
+  private tokens: Array<TokenData> = [];
+
+  addToken(token: string, userId: string) {
+    // Tokens should have expiration time
+    const expireAt = new Date(new Date().getTime() + this.TOKEN_VALIDITY).toISOString();
+    this.tokens.push({ token, userId, expireAt });
+  }
+
+  removeToken(token: string) {
+    this.tokens = this.tokens.filter(({ token: t }) => t !== token);
+  }
+
+  findToken(token: string) {
+    return this.tokens.find(({token: t }) => t === token);
+  }
+
+  isTokenValid(token: string) {
+    const storedToken = this.findToken(token);
+  
+    return storedToken?.expireAt ? (
+      new Date().getTime() < new Date(storedToken.expireAt).getTime()
+    ) : false;
+  }
+
+  getTokenOwnerId(token: string) {
+    return this.findToken(token)?.userId || null;
+  }
+
+  generateToken() {
+    return faker.random.alphaNumeric(24);
+  }
 }
 
-export const removeToken = (token: string) => {
-    tokens =  tokens.filter(({ token: t }) => t !== token)
-}
-
-export const isTokenValid = (token: string) => (
-    tokens.some(({token: t }) => t === token)
-);
-
-export const getTokenOwner = (token: string) => (
-    tokens.find(({token: t }) => t === token)?.userId
-)
-
-export const generateToken = () => faker.random.alphaNumeric(24);
+export default new TokenManager();

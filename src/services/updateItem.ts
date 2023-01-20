@@ -1,16 +1,15 @@
-import { API } from "~/constants";
-import getUrl from "~/utils/getUrl";
-import { IItem } from "./getUserItems";
+import httpClient from '~/httpClient';
+import {API} from '~/constants/api';
+import {UpdateItemData} from '~/types/userItems.types';
 
-const updateItem = (item: IItem) => (
-    fetch(getUrl(API.Items), {
-        method: "POST",
-        body: JSON.stringify(item),
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-        }
-    })
-)
+const updateItem = (item: UpdateItemData) => (
+  httpClient.fetch(API.Items, {
+    method: 'POST',
+    body: item,
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  })
+);
 
 export default updateItem;

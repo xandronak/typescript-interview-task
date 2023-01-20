@@ -1,17 +1,25 @@
-import {API} from '~/constants';
-import getUrl from '../utils/getUrl';
+import {API} from '~/constants/api';
+import httpClient from '~/httpClient';
+import {setToken} from '~/utils/tokenManager';
 
 const login = async (username: string, password: string) => {
-  const url = getUrl(API.Login, {
-    username,
-    password,
-  });
+  try {
+    const {data} = await httpClient.fetch(API.Login, {
+      method: 'POST',
+      body: {
+        username,
+        password,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
 
-  const response = await fetch(url);
-  const data = await response.json();
-  const { token } = data;
-
-  localStorage.setItem('token', token);
+    const {token} = data;
+    setToken(token);
+  } catch(error) {
+    throw Error(error.message);
+  }
 };
 
 export default login;

@@ -1,9 +1,10 @@
-import { isTokenValid } from '../services/tokenManager';
+import tokenManager from '../services/tokenManager';
+import {getBearerToken} from '../utils/getBearerToken';
 
 const authentication = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')?.[1];
+  const token = getBearerToken(req);
   
-  if (!token || !isTokenValid(token)) {
+  if (!token || !tokenManager.isTokenValid(token)) {
     res.status(401).send('Invalid token');
     return;
   }
