@@ -1,0 +1,22 @@
+@import "~/style/_variables";
+
+.error-text-container {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 4px;
+  background-color: rgba($error, 0.1);
+  border: 1px solid $error;
+
+  .error-text {
+    margin-left: 4px;
+    color: $error;
+  }
+
+  .error-icon {
+    align-self: center;
+    width: 24px;
+    height: 24px;
+  }
+}

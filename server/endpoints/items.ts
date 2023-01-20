@@ -1,30 +1,25 @@
 import {Router} from 'express';
+
 import authentication from '../middleware/authentication';
-import { getItems, updateItem } from '../services/itemManager';
+import ItemManager from '../services/itemManager';
 
 const router = Router();
 
 router.get('/api/items', authentication, (req, res) => {
   res.status(200).json({
-    items: getItems(),
+    items: ItemManager.getItems(),
   });
 });
 
-router.post('/api/items', authentication, (req, res) => {
-  const { id, title, description, password } = req.body;
+router.post('/api/items', authentication, async (req, res) => {
+  const {id, password} = req.body;
 
-  if (!id || !title || !description || !password) {
-    res.status(400).send('mandatory parameter is missing');
+  if (!id || !password) {
+    res.status(400).send({message: 'Mandatory parameter is missing'});
     return;
   }
   
-  updateItem({
-    id,
-    title,
-    description,
-    password,
-    createdAt: new Date().toDateString(),
-  })
+  ItemManager.updateItemPasswordById(id, password);
 
   res.status(200).send();
 });

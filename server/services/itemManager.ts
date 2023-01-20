@@ -1,20 +1,49 @@
-import { passwords } from '../data';
+import {getPasswordsList} from '../data';
+import {PasswordData, PasswordDataWithMeta} from '../types';
+import {checkIsPasswordOld} from '../utils/checkIsPasswordOld';
+import {checkIsPasswordWeak} from '../utils/checkIsPasswordWeak';
+import {checkIsPasswordReused} from '../utils/checkIsPasswordReused';
+import passwordManager from '../services/passwordManager';
 
-let items = [];
+class ItemManager {
+  private items: Array<PasswordData> = [];
 
-export const updateItem = (item) => {
-  items.push(item);
-};
+  constructor(initialData: Array<PasswordData>) {
+    this.items = initialData;
+  }
 
-export const getItems = () => {
-  return passwords.map((passwordItem) => {
-    const updatedItem = items.find(({ id }) => id === passwordItem.id);
+  getItems(): Array<PasswordDataWithMeta> {
+    const decryptedPasswordList = this.items.map(({password}) => (
+      passwordManager.decryptPassword(password))
+    );
+    
+    return this.items.map((item) => {
+      const decryptedPassword = passwordManager.decryptPassword(item.password);
+  
+      return ({
+        id: item.id,
+        description: item.description,
+        title: item.title,
+        isPasswordOld: checkIsPasswordOld(item.createdAt),
+        isPasswordReused: checkIsPasswordReused(decryptedPassword, decryptedPasswordList),
+        isPasswordWeak: checkIsPasswordWeak(decryptedPassword),
+      });
+    });
+  }
 
-    return {
-      ...(updatedItem || passwordItem),
-    };
-  })
-};
+  updateItemPasswordById(id: string, password: string) {
+    this.items = this.items.map((oldItem) => {
+      if (oldItem.id === id) {
+        return {
+          ...oldItem,
+          password: passwordManager.encryptPassword(password),
+          createdAt: new Date().toISOString(),
+        };
+      }
 
+      return oldItem;
+    });
+  }
+}
 
-
+export default new ItemManager(getPasswordsList());
